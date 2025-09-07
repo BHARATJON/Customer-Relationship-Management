@@ -95,23 +95,25 @@ exports.updateLead = async (req, res) => {
 exports.deleteLead = async (req, res) => {
     try {
         const lead = await Lead.findById(req.params.id);
-
         if (!lead) {
+            console.error('Delete Lead: Lead not found. Lead ID:', req.params.id);
             return res.status(404).json({ msg: 'Lead not found' });
         }
 
-        // Check if user owns the customer associated with the lead
         const customer = await Customer.findById(lead.customerId);
+        if (!customer) {
+            console.error('Delete Lead: Customer not found. Customer ID:', lead.customerId);
+        }
         if (!customer || customer.ownerId.toString() !== req.user.id) {
+            console.error('Delete Lead: Not authorized. User ID:', req.user.id, 'Customer:', customer);
             return res.status(401).json({ msg: 'Not authorized' });
         }
 
-        await lead.remove();
-
-        res.json({ msg: 'Lead removed' });
+    await Lead.deleteOne({ _id: lead._id });
+    res.json({ msg: 'Lead removed' });
     } catch (err) {
-        console.error(err.message);
-        if (err.kind === 'ObjectId') {
+        console.error('Delete Lead: Error details:', err);
+        if (err && err.kind === 'ObjectId') {
             return res.status(404).json({ msg: 'Lead not found' });
         }
         res.status(500).send('Server Error');

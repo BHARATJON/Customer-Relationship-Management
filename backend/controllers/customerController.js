@@ -140,7 +140,7 @@ exports.deleteCustomer = async (req, res) => {
         // Delete all leads related to this customer
         await Lead.deleteMany({ customerId: req.params.id });
 
-        await customer.remove();
+    await Customer.deleteOne({ _id: customer._id });
 
         res.json({ msg: 'Customer and related leads removed' });
     } catch (err) {

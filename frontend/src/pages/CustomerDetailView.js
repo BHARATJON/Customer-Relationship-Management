@@ -45,7 +45,13 @@ const CustomerDetailView = () => {
             await leadService.deleteLead(leadId);
             fetchCustomerDetails();
         } catch (error) {
-            console.error('Failed to delete lead', error);
+            if (error.response) {
+                console.error('Failed to delete lead:', error.response.data);
+                alert('Failed to delete lead: ' + (error.response.data.msg || error.response.data.message || 'Unknown error'));
+            } else {
+                console.error('Failed to delete lead', error);
+                alert('Failed to delete lead: Unknown error');
+            }
         }
     };
 
