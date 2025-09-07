@@ -41,12 +41,29 @@ exports.registerUser = async (req, res) => {
 
         await user.save();
 
-        res.status(201).json({
-            _id: user._id,
-            name: user.name,
-            email: user.email,
-            role: user.role,
-        });
+        // Create JWT
+        const payload = {
+            user: {
+                id: user.id,
+                role: user.role,
+            },
+        };
+
+        jwt.sign(
+            payload,
+            process.env.JWT_SECRET,
+            { expiresIn: '1h' },
+            (err, token) => {
+                if (err) throw err;
+                res.status(201).json({
+                    token,
+                    _id: user._id,
+                    name: user.name,
+                    email: user.email,
+                    role: user.role,
+                });
+            }
+        );
 
     } catch (err) {
         console.error(err.message);
@@ -98,7 +115,13 @@ exports.loginUser = async (req, res) => {
             { expiresIn: '1h' },
             (err, token) => {
                 if (err) throw err;
-                res.json({ token });
+                res.json({
+                    token,
+                    _id: user._id,
+                    name: user.name,
+                    email: user.email,
+                    role: user.role,
+                });
             }
         );
 
