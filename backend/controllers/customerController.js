@@ -137,9 +137,12 @@ exports.deleteCustomer = async (req, res) => {
             return res.status(401).json({ msg: 'User not authorized' });
         }
 
+        // Delete all leads related to this customer
+        await Lead.deleteMany({ customerId: req.params.id });
+
         await customer.remove();
 
-        res.json({ msg: 'Customer removed' });
+        res.json({ msg: 'Customer and related leads removed' });
     } catch (err) {
         console.error(err.message);
         if (err.kind === 'ObjectId') {
